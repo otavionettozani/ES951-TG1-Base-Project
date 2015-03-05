@@ -8,6 +8,7 @@
 
 void clearFlags(){
 
+
 	e_epiphany_t dev;
 	int clear[2] = {0,0};
 	unsigned int i,j;
