@@ -18,22 +18,28 @@ void clearFlags(){
 			e_open(&dev,i,j,1,1);
 			e_reset_group(&dev);
 			e_write(&dev,0,0,COMMADDRESS_BUSY,clear,2*sizeof(int));
+			e_close(&dev);
 		}
 	}
+	usleep(10000);
 
 }
 
-void dataSent(void *dev, unsigned row, unsigned col){
+void dataSent(void *dev, unsigned row, unsigned col, unsigned size){
 
-	unsigned address = COMMADDRESS_DATA_TO_EPIPHANY;
+	unsigned sizePointer[1];
 	unsigned char bitOn[1];
 	unsigned char *ack;
 
+	sizePointer[0] = size;
 	bitOn[0] = 1;
 
+	//send to the core the size of the message sent
+	e_write(dev, row, col, COMMADDRESS_SIZE, sizePointer, sizeof(unsigned));
+	//set the data_to_epiphany bit to 1, so that the core knows that the data has been transfered
+	e_write(dev, row, col,COMMADDRESS_DATA_TO_EPIPHANY,bitOn,sizeof(char));
 
-	e_write(dev, row, col,address,bitOn,sizeof(char));
-
+	//wait for the core to acknowledge the receiving of the data
 	while (!ack[0]){
 		e_read(dev,row,col,COMMADDRESS_EPIPHANY_ACK,ack,sizeof(char));
 	}
@@ -72,7 +78,7 @@ int main(){
 			e_reset_group(&dev);
 
 			e_write(&dev, 0,0, COMMADDRESS_DATA, &message, sizeof(unsigned));
-			dataSent(&dev, 0,0);
+			dataSent(&dev, 0,0, 1*sizeof(message));
 			e_return_stat_t result = e_load("epiphanyProgram.srec",&dev,0,0,E_TRUE);
 
 			if(result != E_OK){
