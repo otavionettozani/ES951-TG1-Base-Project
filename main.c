@@ -29,10 +29,11 @@ void dataSent(void *dev, unsigned row, unsigned col, unsigned size){
 
 	unsigned sizePointer[1];
 	unsigned char bitOn[1];
-	unsigned char *ack;
+	unsigned char ack[1];
 
 	sizePointer[0] = size;
 	bitOn[0] = 1;
+	ack[0]= 0;
 
 	//send to the core the size of the message sent
 	e_write(dev, row, col, COMMADDRESS_SIZE, sizePointer, sizeof(unsigned));
